@@ -1,2 +1,2 @@
 # OscMassenger
-OSC (SLIP) implementation of the Massenger API
+OSC implementation of the Massenger API (https://github.com/SofaPirate/Massenger)
