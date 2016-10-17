@@ -1,7 +1,7 @@
 #N canvas 720 115 756 268 10;
 #X declare -lib mrpeach;
 #X obj 251 231 import mrpeach;
-#X obj 131 190 mrpeach/slipdec 65536;
+#X obj 69 215 mrpeach/slipdec 65536;
 #X obj 95 47 mrpeach/slipenc 65536;
 #X obj 303 65 loadbang;
 #X obj 299 22 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
@@ -19,6 +19,7 @@
 #X msg 390 42;
 #X obj 226 19 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
+#X obj 118 164 print raw;
 #X connect 1 0 6 0;
 #X connect 2 0 11 0;
 #X connect 3 0 9 0;
@@ -30,5 +31,6 @@
 #X connect 9 0 11 0;
 #X connect 11 0 10 0;
 #X connect 11 0 1 0;
+#X connect 11 0 15 0;
 #X connect 11 1 12 0;
 #X connect 14 0 11 0;

@@ -10,7 +10,6 @@ extern "C" {
 
 OscMassenger::OscMassenger(Stream* stream)
   : Massenger(stream),
-   _slipEscaping(false), 
    slip (stream)
 {_needToEmptyOscInput = false;}
 
@@ -21,36 +20,36 @@ void OscMassenger::flush()
 }
 
 int8_t OscMassenger::nextByte(bool* error) {
-  int8_t v;
-  _nextBlock((uint8_t*)&v, sizeof(int8_t), error);
+  int8_t v = _oscInput.getInt(_nextIndex );
+  _nextIndex++;
   return v;
 }
 
 int16_t OscMassenger::nextInt(bool* error)
 {
-  int16_t v;
-  _nextBlock((uint8_t*)&v, sizeof(int16_t), error);
+  int16_t v= _oscInput.getInt(_nextIndex );
+  _nextIndex++;
   return v;
 }
 
 int32_t OscMassenger::nextLong(bool* error)
 {
-  int32_t v;
-  _nextBlock((uint8_t*)&v, sizeof(int32_t), error);
+  int32_t v = _oscInput.getInt(_nextIndex );
+  _nextIndex++;
   return v;
 }
 
 float OscMassenger::nextFloat(bool* error)
 {
-  float v;
-  _nextBlock((uint8_t*)&v, sizeof(float), error);
+  float v = _oscInput.getFloat(_nextIndex );
+  _nextIndex++;
   return v;
 }
 
 double OscMassenger::nextDouble(bool* error)
 {
-  double v;
-  _nextBlock((uint8_t*)&v, sizeof(double), error);
+  double v = _oscInput.getDouble(_nextIndex );
+  _nextIndex++;
   return v;
 }
 
@@ -104,26 +103,37 @@ void OscMassenger::sendEnd()
 }
 
 
+ bool OscMassenger::dispatch(const char* address, callbackFunction callback) {
+ 	if ( _oscInput.match(address))  {
+		callback();
+  		return true;
+	}
+	return false;
+ }
+
 bool OscMassenger::receive()
 {
   // Flush.
   flush();
-
+ 
  if ( _needToEmptyOscInput ) {
  	_oscInput.empty();
  	_needToEmptyOscInput = false;
+
  }
   // Read stream.
-
-  int size = slip.available();
-  while (size--)
-        _oscInput.fill(slip.read());
-
-   if ( slip.endOfPacket() ) {
-   	_needToEmptyOscInput = true;
-   	  if (!_oscInput.hasError()) return true;
-   }
-
+  while ( slip.available() ) {
+  	if ( slip.readPacketEnd() ) {
+  		_needToEmptyOscInput = true;
+  		 if(!_oscInput.hasError()) {
+  		 	_nextIndex = 0;
+  			return true;
+ 		 }
+	} else {
+  		_oscInput.fill( slip.read() );	
+	}
+  }
+  
   return false;
 }
 
@@ -172,7 +182,7 @@ bool OscMassenger::_process(int streamByte)
   */
   return false;
 }
-
+/*
 bool OscMassenger::_hasNext() const {
   return (_nextIndex < _messageSize);
 }
@@ -202,3 +212,4 @@ void OscMassenger::_nextBlock(uint8_t* value, size_t n, bool* error)
     _nextIndex += n;
   }
 }
+*/

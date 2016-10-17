@@ -18,11 +18,12 @@ Extends the Serial class to encode SLIP over serial
 class Slip: public Stream{
 	
 private:
-	enum erstate {CHAR, FIRSTEOT, SECONDEOT, SLIPESC } rstate;
+	enum erstate {SLIPDATA, SLIPEOT, SLIPESC } rstate;
 	
 	//the serial port used
 	Stream * serial;
-
+    
+    bool receivedData;
 
 	
 public:
@@ -42,8 +43,8 @@ public:
 	
 	//SLIP specific method which ends a transmittedpacket
 	void endPacket();
-	// SLIP specific method which indicates that an EOT was received 
-	bool endOfPacket();
+	// SLIP specific method that reads if EOT was received 
+	bool  readPacketEnd();
 	
 	
 //the arduino and wiring libraries have different return types for the write function

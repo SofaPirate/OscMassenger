@@ -2,7 +2,7 @@
 #define OscMassenger_h
 
 #include "Massenger/Massenger.h"
-#include "Osc/OSCBundle.h"
+#include "Osc/OSCMessage.h"
 #include "Slip/Slip.h"
 
 /// Main OscMassenger class.
@@ -11,6 +11,9 @@ class OscMassenger : public Massenger
 public:
   /// Constructor.
   OscMassenger(Stream* stream=&Serial);
+
+
+ virtual bool dispatch(const char* address, callbackFunction callback);
 
   /// Flushes current message in buffer (if any).
   virtual void flush();
@@ -69,26 +72,26 @@ protected:
 
 private:
    // Moves nextIndex to the next token.
-  bool _updateNextIndex();
+ // bool _updateNextIndex();
 
   // Returns true iff it is still possible to call next*().
-  bool _hasNext() const;
+  //bool _hasNext() const;
 
   // Helper function to read next block of data.
-  void _nextBlock(uint8_t* value, size_t n, bool* error);
+ // void _nextBlock(uint8_t* value, size_t n, bool* error);
 
 
   // Index in the buffer of next argument to read.
   uint8_t _nextIndex;
 
   // SLIP decoding state: currently escaping.
-  bool _slipEscaping;
+ // bool _slipEscaping;
   
   // OSC output message
   OSCMessage oscOutput;
 
   bool _needToEmptyOscInput;
-  OSCBundle _oscInput;
+  OSCMessage _oscInput;
   
   Slip slip;
 
