@@ -1,5 +1,9 @@
 #include "Slip.h"
 
+static const uint8_t eot = 0300;
+static const uint8_t slipesc = 0333;
+static const uint8_t slipescend = 0334;
+static const uint8_t slipescesc = 0335;
 /*
  CONSTRUCTOR
  */
@@ -7,84 +11,104 @@
 //use HardwareSerial
 Slip::Slip(Stream * s){
 	serial = s;
-	rstate = CHAR;
+	rstate = SLIPDATA;
+	receivedData = false;
 }
 
-static const uint8_t eot = 0300;
-static const uint8_t slipesc = 0333;
-static const uint8_t slipescend = 0334;
-static const uint8_t slipescesc = 0335;
+
 /*
  SERIAL METHODS
  */
-bool Slip::endOfPacket()
-{
-	if(rstate == SECONDEOT)
-	{
-		rstate = CHAR; 
-		return true;
-	}
-	if (rstate==FIRSTEOT)
-	{
-        if(serial->available())
-        {
-            uint8_t c =serial->peek();
-            if(c==eot)
-            {
-                serial->read(); // throw it on the floor
-            }
-        }
-		rstate = CHAR;
-		return true;
-	}
-	return false;
-}
+
+ bool Slip::readPacketEnd() {
+ 	if  (rstate == SLIPEOT) {
+ 		rstate = SLIPDATA;
+ 		bool result = receivedData;
+ 		receivedData = false;
+ 		return result;
+ 	}
+ 	return false;
+ 	
+ }
+
 int Slip::available(){
-back:
-	int cnt = serial->available();
-	
-	if(cnt==0)
-		return 0;
-	if(rstate==CHAR)
-	{
+    
+ while ( serial->available()  )  {
+  
 		uint8_t c =serial->peek();
-		if(c==slipesc)
-		{
-			rstate = SLIPESC;
+        
+ 		if ( c == slipesc ) {
+ 			
+ 			rstate = SLIPESC;
 			serial->read(); // throw it on the floor
-			goto back;
+ 			
+		}  else if ( c == eot ) {
+			rstate = SLIPEOT;
+			serial->read(); // throw it on the floor
+			if ( receivedData ) return 1;
+			
+		} else {
+			return 1;
 		}
-		else if( c==eot)
-		{
-			rstate = FIRSTEOT;
-			serial->read(); // throw it on the floor
-			goto back;
-		}
-		return 1; // we may have more but this is the only sure bet
-	}
-	else if(rstate==SLIPESC)	
-		return 1;
-	else if(rstate==FIRSTEOT)
-	{
-		if(serial->peek()==eot)
-		{
-			rstate = SECONDEOT;
-			serial->read(); // throw it on the floor
-			return 0;
-		}		
-		rstate = CHAR;
-	}else if (rstate==SECONDEOT) {
-		rstate = CHAR;
-	}
-	
-	return 0;
-		
+ 	 
+ 	
+ }
+ return 0;
 }
 
 //reads a byte from the buffer
 int Slip::read(){
+    
+	if ( rstate == SLIPEOT ) {
+		return -1;
+	} else {
+		int c = serial->read();
+		if ( rstate == SLIPESC ) {
+			rstate = SLIPDATA;
+			if(c==slipescend) { 
+				receivedData = true;
+				return eot; 
+			} else if(c==slipescesc) {
+				receivedData = true;
+				return slipesc;
+			} else {
+				// insert some error code here
+				return -1;
+			}
+		} else {
+			receivedData = true;
+			return c;
+		}
+	}
+}
+	 
+
+
+/*
 back:
 	uint8_t c = serial->read();
+   
+   if ( c > - 1) {
+   	   if ( c == eot ) {
+   	   	return c;
+   	   } else if(rstate==SLIPESC) {
+		if(c==slipescend)
+			return eot;
+		else if(c==slipescesc)
+			return slipesc;
+			else {
+				// insert some error code here
+				return -1;
+			}
+
+	}
+   	} else {
+   		return -1;
+   	}
+
+
+
+
 	if(rstate==CHAR)
 	{
 		if(c==slipesc)
@@ -115,7 +139,7 @@ back:
 	else
 		return -1;
 }
-
+*/
 // as close as we can get to correct behavior
 int Slip::peek(){
 	uint8_t c = serial->peek();
