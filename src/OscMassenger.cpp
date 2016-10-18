@@ -11,7 +11,8 @@ extern "C" {
 OscMassenger::OscMassenger(Stream* stream)
   : Massenger(stream),
    slip (stream)
-{_needToEmptyOscInput = false;}
+{_needToEmptyOscInput = false;
+oscOutput.empty();}
 
 void OscMassenger::flush()
 {
@@ -96,9 +97,9 @@ void OscMassenger::sendDouble(double value)
 void OscMassenger::sendEnd()
 {
 	slip.beginPacket();
-    oscOutput.send(  slip );
+  oscOutput.send(  slip );
 	slip.endPacket();
-    oscOutput.empty();
+  oscOutput.empty();
   //_stream->write(BINARY_MASSENGER_SLIP_END);
 }
 

@@ -33,7 +33,7 @@ Slip::Slip(Stream * s){
 
 int Slip::available(){
     
- while ( serial->available() && rstate != SLIPEOT )  {
+ while ( serial->available()  )  {
   
 		uint8_t c =serial->peek();
         
@@ -45,7 +45,8 @@ int Slip::available(){
 		}  else if ( c == eot ) {
 			rstate = SLIPEOT;
 			serial->read(); // throw it on the floor
-			return 1;
+			if ( receivedData ) return 1;
+			
 		} else {
 			return 1;
 		}
@@ -54,48 +55,7 @@ int Slip::available(){
  }
  return 0;
 }
-/*
-back:
-	int cnt = serial->available();
-	
-	if(cnt==0)
-		return 0;
-	if(rstate==CHAR)
-	{
-		uint8_t c =serial->peek();
-		if(c==slipesc)
-		{
-			rstate = SLIPESC;
-			serial->read(); // throw it on the floor
-			goto back;
-		}
-		else if( c==eot)
-		{
-			rstate = FIRSTEOT;
-			serial->read(); // throw it on the floor
-			goto back;
-		}
-		return 1; // we may have more but this is the only sure bet
-	}
-	else if(rstate==SLIPESC)	
-		return 1;
-	else if(rstate==FIRSTEOT)
-	{
-		if(serial->peek()==eot)
-		{
-			rstate = SECONDEOT;
-			serial->read(); // throw it on the floor
-			return 0;
-		}		
-		rstate = CHAR;
-	}else if (rstate==SECONDEOT) {
-		rstate = CHAR;
-	}
-	
-	return 0;
-		
-}
-*/
+
 //reads a byte from the buffer
 int Slip::read(){
     
