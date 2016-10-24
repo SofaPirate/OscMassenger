@@ -14,11 +14,7 @@ OscMassenger::OscMassenger(Stream* stream)
 {_needToEmptyOscInput = false;
 oscOutput.empty();}
 
-void OscMassenger::flush()
-{
-  Massenger::flush();
-  
-}
+
 
 int8_t OscMassenger::nextByte(bool* error) {
   int8_t v = _oscInput.getInt(_nextIndex );
@@ -88,11 +84,6 @@ void OscMassenger::sendFloat(float value)
   oscOutput.add(value);
 }
 
-void OscMassenger::sendDouble(double value)
-{
-  //_sendSlipData(&value, sizeof(double));
-  oscOutput.add(value);
-}
 
 void OscMassenger::sendEnd()
 {
@@ -114,8 +105,7 @@ void OscMassenger::sendEnd()
 
 bool OscMassenger::receive()
 {
-  // Flush.
-  flush();
+
  
  if ( _needToEmptyOscInput ) {
  	_oscInput.empty();
