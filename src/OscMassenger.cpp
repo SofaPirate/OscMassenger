@@ -16,8 +16,8 @@ oscOutput.empty();}
 
 
 
-int8_t OscMassenger::nextByte(bool* error) {
-  int8_t v = _oscInput.getInt(_nextIndex );
+uint8_t OscMassenger::nextByte(bool* error) {
+  uint8_t v = _oscInput.getInt(_nextIndex );
   _nextIndex++;
   return v;
 }
@@ -106,7 +106,7 @@ void OscMassenger::sendEnd()
 bool OscMassenger::receive()
 {
 
- 
+
  if ( _needToEmptyOscInput ) {
  	_oscInput.empty();
  	_needToEmptyOscInput = false;
@@ -121,10 +121,10 @@ bool OscMassenger::receive()
   			return true;
  		 }
 	} else {
-  		_oscInput.fill( slip.read() );	
+  		_oscInput.fill( slip.read() );
 	}
   }
-  
+
   return false;
 }
 

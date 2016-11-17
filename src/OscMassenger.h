@@ -18,7 +18,7 @@ public:
 
 
   /// Reads next byte.
-  virtual int8_t nextByte(bool* error=0);
+  virtual iunt8_t nextByte(bool* error=0);
 
   /// Reads next int.
   virtual int16_t nextInt(bool* error=0);
@@ -79,13 +79,13 @@ private:
 
   // SLIP decoding state: currently escaping.
  // bool _slipEscaping;
-  
+
   // OSC output message
   OSCMessage oscOutput;
 
   bool _needToEmptyOscInput;
   OSCMessage _oscInput;
-  
+
   Slip slip;
 
 };
